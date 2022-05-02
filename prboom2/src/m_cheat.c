@@ -392,8 +392,8 @@ static void cheat_clev(char buf[3]) {
 		map = buf[1] - '0';
 	}
 
-	// First check if we have a mapinfo entry for the requested level. If this is present the
-	// remaining checks should be skipped.
+	// First check if we have a mapinfo entry for the requested level. If this is
+	// present the remaining checks should be skipped.
 	entry = G_LookupMapinfo(epsd, map);
 	if (!entry) {
 		char* next;
@@ -814,6 +814,20 @@ dboolean M_FindCheats(int key) {
 		return M_FindCheats_Boom(key);
 	else
 		return M_FindCheats_Doom(key);
+}
+
+void M_CheckCheatParm(void) {
+	int i = M_CheckParm("-cheat");
+	if (i) {
+		i++;
+		if (i == myargc) {
+			return;
+		}
+
+		if (strcmp(myargv[i], "iddqd") == 0 || strcmp(myargv[i], "god") == 0) {
+			cheat_god();
+		}
+	}
 }
 
 // Extended compatibility cheat

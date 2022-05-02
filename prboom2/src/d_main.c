@@ -65,6 +65,7 @@
 #include "i_video.h"
 #include "lprintf.h" // jff 08/03/98 - declaration of lprintf
 #include "m_argv.h"
+#include "m_cheat.h"
 #include "m_menu.h"
 #include "m_misc.h"
 #include "p_checksum.h"
@@ -433,6 +434,8 @@ static const char* auto_shot_fname;
 static void D_DoomLoop(void) {
 	if (quickstart_window_ms > 0)
 		I_uSleep(quickstart_window_ms * 1000);
+
+	M_CheckCheatParm();
 
 	for (;;) {
 		WasRenderedInTryRunTics = false;
@@ -1701,7 +1704,7 @@ static void D_DoomMainSetup(void) {
 	// init subsystems
 
 	G_ReloadDefaults(); // killough 3/4/98: set defaults just loaded.
-						// jff 3/24/98 this sets startskill if it was -1
+	                    // jff 3/24/98 this sets startskill if it was -1
 
 #ifdef GL_DOOM
 	// proff 04/05/2000: for GL-specific switches

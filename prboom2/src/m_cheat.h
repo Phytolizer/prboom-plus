@@ -76,4 +76,6 @@ extern cheatseq_t cheat[];
 
 dboolean M_FindCheats(int key);
 
+void M_CheckCheatParm(void);
+
 #endif
