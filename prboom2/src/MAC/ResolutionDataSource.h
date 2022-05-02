@@ -23,14 +23,13 @@
 
 #import <Cocoa/Cocoa.h>
 
-@interface ResolutionDataSource : NSObject
-{
+@interface ResolutionDataSource : NSObject {
 }
 
-+ (NSArray *)resolutions;
++ (NSArray*)resolutions;
 
-- (id)comboBox:(NSComboBox *)box objectValueForItemAtIndex:(int)i;
-- (int)comboBox:(NSComboBox *)box indexOfItemWithStringValue:(NSString *)string;
-- (int)numberOfItemsInComboBox:(NSComboBox *)box;
+- (id)comboBox:(NSComboBox*)box objectValueForItemAtIndex:(int)i;
+- (int)comboBox:(NSComboBox*)box indexOfItemWithStringValue:(NSString*)string;
+- (int)numberOfItemsInComboBox:(NSComboBox*)box;
 
 @end

@@ -37,42 +37,38 @@
 
 #define MAXTRACEITEMS 8
 
-typedef enum
-{
-  TRACE_HEALTH,
-  TRACE_PICKUP,
-  TRACE_CROSS,
-  TRACE_DAMAGE,
+typedef enum {
+	TRACE_HEALTH,
+	TRACE_PICKUP,
+	TRACE_CROSS,
+	TRACE_DAMAGE,
 
-  NUMTRACES
+	NUMTRACES
 } tracertype_t;
 
-typedef struct
-{
-  int index;
-  char value[16];
-  int data1;
+typedef struct {
+	int index;
+	char value[16];
+	int data1;
 } traceitem_t;
 
 typedef void (*TRACERFUNC)(tracertype_t index);
-typedef struct traceslist_s
-{
-  traceitem_t items[MAXTRACEITEMS];
-  int count;
+typedef struct traceslist_s {
+	traceitem_t items[MAXTRACEITEMS];
+	int count;
 
-  char hudstr[80];
-  char cmd[32];
-  char prefix[32];
-  TRACERFUNC ApplyFunc;
-  TRACERFUNC ResetFunc;
+	char hudstr[80];
+	char cmd[32];
+	char prefix[32];
+	TRACERFUNC ApplyFunc;
+	TRACERFUNC ResetFunc;
 } traceslist_t;
 
-typedef struct traceslistinit_s
-{
-  char cmd[32];
-  char prefix[32];
-  TRACERFUNC ApplyFunc;
-  TRACERFUNC ResetFunc;
+typedef struct traceslistinit_s {
+	char cmd[32];
+	char prefix[32];
+	TRACERFUNC ApplyFunc;
+	TRACERFUNC ResetFunc;
 } traceslistinit_t;
 
 extern traceslist_t traces[];
@@ -82,10 +78,10 @@ extern hu_textline_t w_traces[];
 
 void InitTracers(void);
 
-void CheckGivenDamageTracer(mobj_t *mobj, int damage);
-void CheckThingsPickupTracer(mobj_t *mobj);
-void CheckThingsHealthTracer(mobj_t *mobj);
-void CheckLinesCrossTracer(line_t *line);
+void CheckGivenDamageTracer(mobj_t* mobj, int damage);
+void CheckThingsPickupTracer(mobj_t* mobj);
+void CheckThingsHealthTracer(mobj_t* mobj);
+void CheckLinesCrossTracer(line_t* line);
 void ClearLinesCrossTracer(void);
 
 void TracerClearStarts(void);

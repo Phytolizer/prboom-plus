@@ -25,6 +25,6 @@
 
 @interface ANSIString : NSObject
 
-+ (NSAttributedString *)parseColorCodes:(NSString *)ansiString;
++ (NSAttributedString*)parseColorCodes:(NSString*)ansiString;
 
 @end

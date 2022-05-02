@@ -43,41 +43,40 @@
 #ifdef __GNUG__
 #pragma implementation "w_wad.h"
 #endif
+#include "lprintf.h"
 #include "w_wad.h"
 #include "z_zone.h"
-#include "lprintf.h"
 
 static struct {
-  void *cache;
+	void* cache;
 #ifdef TIMEDIAG
-  int locktic;
+	int locktic;
 #endif
-  unsigned int locks;
-} *cachelump;
+	unsigned int locks;
+} * cachelump;
 
 #ifdef HEAPDUMP
 void W_PrintLump(FILE* fp, void* p) {
-  int i;
-  for (i=0; i<numlumps; i++)
-    if (cachelump[i].cache == p) {
-      fprintf(fp, " %8.8s %6u %2d %6d", lumpinfo[i].name,
-	      W_LumpLength(i), cachelump[i].locks, gametic - cachelump[i].locktic);
-      return;
-    }
-  fprintf(fp, " not found");
+	int i;
+	for (i = 0; i < numlumps; i++)
+		if (cachelump[i].cache == p) {
+			fprintf(fp, " %8.8s %6u %2d %6d", lumpinfo[i].name, W_LumpLength(i), cachelump[i].locks,
+					gametic - cachelump[i].locktic);
+			return;
+		}
+	fprintf(fp, " not found");
 }
 #endif
 
 #ifdef TIMEDIAG
-static void W_ReportLocks(void)
-{
-  int i;
-  lprintf(LO_DEBUG, "W_ReportLocks:\nLump     Size   Locks  Tics\n");
-  for (i=0; i<numlumps; i++) {
-    if (cachelump[i].locks)
-      lprintf(LO_DEBUG, "%8.8s %6u %2d   %6d\n", lumpinfo[i].name,
-	      W_LumpLength(i), cachelump[i].locks, gametic - cachelump[i].locktic);
-  }
+static void W_ReportLocks(void) {
+	int i;
+	lprintf(LO_DEBUG, "W_ReportLocks:\nLump     Size   Locks  Tics\n");
+	for (i = 0; i < numlumps; i++) {
+		if (cachelump[i].locks)
+			lprintf(LO_DEBUG, "%8.8s %6u %2d   %6d\n", lumpinfo[i].name, W_LumpLength(i),
+					cachelump[i].locks, gametic - cachelump[i].locktic);
+	}
 }
 #endif
 
@@ -85,21 +84,18 @@ static void W_ReportLocks(void)
  *
  * cph 2001/07/07 - split from W_Init
  */
-void W_InitCache(void)
-{
-  // set up caching
-  cachelump = calloc(sizeof *cachelump, numlumps);
-  if (!cachelump)
-    I_Error ("W_Init: Couldn't allocate lumpcache");
+void W_InitCache(void) {
+	// set up caching
+	cachelump = calloc(sizeof *cachelump, numlumps);
+	if (!cachelump)
+		I_Error("W_Init: Couldn't allocate lumpcache");
 
 #ifdef TIMEDIAG
-  I_AtExit(W_ReportLocks, true);
+	I_AtExit(W_ReportLocks, true);
 #endif
 }
 
-void W_DoneCache(void)
-{
-}
+void W_DoneCache(void) {}
 
 /* W_CacheLumpNum
  * killough 4/25/98: simplified
@@ -107,32 +103,30 @@ void W_DoneCache(void)
  *           returns a const*
  */
 
-const void *W_CacheLumpNum(int lump)
-{
-  const int locks = 1;
+const void* W_CacheLumpNum(int lump) {
+	const int locks = 1;
 #ifdef RANGECHECK
-  if ((unsigned)lump >= (unsigned)numlumps)
-    I_Error ("W_CacheLumpNum: %i >= numlumps",lump);
+	if ((unsigned)lump >= (unsigned)numlumps)
+		I_Error("W_CacheLumpNum: %i >= numlumps", lump);
 #endif
 
-  if (!cachelump[lump].cache)      // read the lump in
-    W_ReadLump(lump, Z_Malloc(W_LumpLength(lump), PU_CACHE, &cachelump[lump].cache));
+	if (!cachelump[lump].cache) // read the lump in
+		W_ReadLump(lump, Z_Malloc(W_LumpLength(lump), PU_CACHE, &cachelump[lump].cache));
 
-  /* cph - if wasn't locked but now is, tell z_zone to hold it */
-  if (!cachelump[lump].locks && locks) {
-    Z_ChangeTag(cachelump[lump].cache,PU_STATIC);
+	/* cph - if wasn't locked but now is, tell z_zone to hold it */
+	if (!cachelump[lump].locks && locks) {
+		Z_ChangeTag(cachelump[lump].cache, PU_STATIC);
 #ifdef TIMEDIAG
-    cachelump[lump].locktic = gametic;
+		cachelump[lump].locktic = gametic;
 #endif
-  }
-  cachelump[lump].locks += locks;
+	}
+	cachelump[lump].locks += locks;
 
-  return cachelump[lump].cache;
+	return cachelump[lump].cache;
 }
 
-const void *W_LockLumpNum(int lump)
-{
-  return W_CacheLumpNum(lump);
+const void* W_LockLumpNum(int lump) {
+	return W_CacheLumpNum(lump);
 }
 
 /*
@@ -141,14 +135,12 @@ const void *W_LockLumpNum(int lump)
  * CPhipps - this changes (should reduce) the number of locks on a lump
  */
 
-void W_UnlockLumpNum(int lump)
-{
-  const int unlocks = 1;
-  cachelump[lump].locks -= unlocks;
-  /* cph - Note: must only tell z_zone to make purgeable if currently locked,
-   * else it might already have been purged
-   */
-  if (unlocks && !cachelump[lump].locks)
-    Z_ChangeTag(cachelump[lump].cache, PU_CACHE);
+void W_UnlockLumpNum(int lump) {
+	const int unlocks = 1;
+	cachelump[lump].locks -= unlocks;
+	/* cph - Note: must only tell z_zone to make purgeable if currently locked,
+	 * else it might already have been purged
+	 */
+	if (unlocks && !cachelump[lump].locks)
+		Z_ChangeTag(cachelump[lump].cache, PU_CACHE);
 }
-

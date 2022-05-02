@@ -33,14 +33,14 @@
 
 // commandlines passed to popen()
 // this one recieves raw PCM sound on stdin
-extern const char *cap_soundcommand;
+extern const char* cap_soundcommand;
 // this one recieves raw RGB video on stdin
-extern const char *cap_videocommand;
+extern const char* cap_videocommand;
 // this one recieves nothing on stdin and is called after the other two finish
-extern const char *cap_muxcommand;
+extern const char* cap_muxcommand;
 // names of two files to remove after muxcommand finishes
-extern const char *cap_tempfile1;
-extern const char *cap_tempfile2;
+extern const char* cap_tempfile1;
+extern const char* cap_tempfile2;
 extern int cap_remove_tempfiles;
 extern int cap_fps;
 extern int cap_frac;
@@ -50,13 +50,13 @@ extern int capturing_video;
 
 // init and open sound, video pipes
 // fn is filename passed from command line, typically final output file
-void I_CapturePrep (const char *fn);
+void I_CapturePrep(const char* fn);
 
 // capture a single frame of video (and corresponding audio length)
 // and send it to pipes
-void I_CaptureFrame (void);
+void I_CaptureFrame(void);
 
 // close pipes, call muxcommand, finalize
-void I_CaptureFinish (void);
+void I_CaptureFinish(void);
 
 #endif

@@ -4,7 +4,7 @@
 // Chained hash lookup to convert rgb triples to palette indices
 
 // load raw palette, create hash table etc.
-void palette_init(const char *filename);
+void palette_init(const char* filename);
 
 // lookup colour index of rgb triple
-int palette_getindex(const unsigned char *rgb);
+int palette_getindex(const unsigned char* rgb);

@@ -2,11 +2,10 @@
 
 #import <Cocoa/Cocoa.h>
 
-@interface ConsoleController : NSWindowController
-{
-	IBOutlet NSTextView *textView;
+@interface ConsoleController : NSWindowController {
+	IBOutlet NSTextView* textView;
 
-	NSMutableString *log;
+	NSMutableString* log;
 	id launchDelegate;
 }
 
@@ -14,9 +13,9 @@
 - (void)awakeFromNib;
 - (void)dealloc;
 
-- (void)launch:(NSString *)launchPath args:(NSArray *)args delegate:(id)delegate;
+- (void)launch:(NSString*)launchPath args:(NSArray*)args delegate:(id)delegate;
 
-- (void)taskComplete:(NSNotification *)notification;
-- (void)dataReady:(NSNotification *)notification;
+- (void)taskComplete:(NSNotification*)notification;
+- (void)dataReady:(NSNotification*)notification;
 
 @end

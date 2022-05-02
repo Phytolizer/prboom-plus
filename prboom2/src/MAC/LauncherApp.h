@@ -2,8 +2,7 @@
 
 #import <Cocoa/Cocoa.h>
 
-@interface LauncherApp : NSObject
-{
+@interface LauncherApp : NSObject {
 	IBOutlet id window;
 
 	// Game
@@ -52,20 +51,19 @@
 	IBOutlet id consoleController;
 }
 
-- (NSString *)wadPath;
+- (NSString*)wadPath;
 - (void)awakeFromNib;
-- (void)windowWillClose:(NSNotification *)notification;
+- (void)windowWillClose:(NSNotification*)notification;
 
 - (IBAction)openWebsite:(id)sender;
 
 - (void)loadDefaults;
 - (void)saveDefaults;
 
-- (NSString *)wadForIndex:(int)index;
-- (NSString *)selectedWad;
+- (NSString*)wadForIndex:(int)index;
+- (NSString*)selectedWad;
 - (void)updateGameWad;
-- (void)watcher:(id)watcher receivedNotification:(NSString *)notification
-        forPath:(NSString *)path;
+- (void)watcher:(id)watcher receivedNotification:(NSString*)notification forPath:(NSString*)path;
 
 // Game
 - (void)tryToLaunch;

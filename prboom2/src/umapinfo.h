@@ -21,24 +21,21 @@
 #define __UMAPINFO_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
-struct BossAction
-{
+struct BossAction {
 	int type;
 	int special;
 	int tag;
 };
 
-struct MapEntry
-{
-	char *mapname;
-	char *levelname;
-	char *label;
-	char *intertext;
-	char *intertextsecret;
+struct MapEntry {
+	char* mapname;
+	char* levelname;
+	char* label;
+	char* intertext;
+	char* intertextsecret;
 	char levelpic[9];
 	char nextmap[9];
 	char nextsecret[9];
@@ -54,23 +51,22 @@ struct MapEntry
 	int numbossactions;
 
 	unsigned int propertycount;
-	struct MapProperty *properties;
-	struct BossAction *bossactions;
+	struct MapProperty* properties;
+	struct BossAction* bossactions;
 };
 
-struct MapList
-{
+struct MapList {
 	unsigned int mapcount;
-	struct MapEntry *maps;
+	struct MapEntry* maps;
 };
 
-typedef void (*umapinfo_errorfunc)(const char *fmt, ...);	// this must not return!
+typedef void (*umapinfo_errorfunc)(const char* fmt, ...); // this must not return!
 
 extern struct MapList Maps;
 
-int ParseUMapInfo(const unsigned char *buffer, size_t length, umapinfo_errorfunc err);
+int ParseUMapInfo(const unsigned char* buffer, size_t length, umapinfo_errorfunc err);
 void FreeMapList();
-struct MapProperty *FindProperty(struct MapEntry *map, const char *name);
+struct MapProperty* FindProperty(struct MapEntry* map, const char* name);
 
 #ifdef __cplusplus
 }

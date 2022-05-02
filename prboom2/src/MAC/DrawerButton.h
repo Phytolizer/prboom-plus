@@ -2,13 +2,12 @@
 
 #import <Cocoa/Cocoa.h>
 
-@interface DrawerButton : NSButton
-{
+@interface DrawerButton : NSButton {
 	IBOutlet id drawer;
 }
 
-- (void)drawerDidClose:(NSNotification *)notification;
-- (void)drawerDidOpen:(NSNotification *)notification;
+- (void)drawerDidClose:(NSNotification*)notification;
+- (void)drawerDidOpen:(NSNotification*)notification;
 - (void)updateTitle;
 
 @end

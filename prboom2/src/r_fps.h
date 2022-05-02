@@ -44,11 +44,11 @@ extern dboolean isExtraDDisplay;
 extern int interpolation_maxobjects;
 
 typedef struct {
-  unsigned int start;
-  unsigned int next;
-  unsigned int step;
-  fixed_t frac;
-  float msec;
+	unsigned int start;
+	unsigned int next;
+	unsigned int step;
+	fixed_t frac;
+	float msec;
 } tic_vars_t;
 
 extern tic_vars_t tic_vars;
@@ -56,16 +56,16 @@ extern tic_vars_t tic_vars;
 void M_ChangeUncappedFrameRate(void);
 
 void R_InitInterpolation(void);
-void R_InterpolateView(player_t *player, fixed_t frac);
+void R_InterpolateView(player_t* player, fixed_t frac);
 
 extern dboolean WasRenderedInTryRunTics;
 
-void R_ResetViewInterpolation ();
+void R_ResetViewInterpolation();
 void R_UpdateInterpolations();
 void R_StopAllInterpolations(void);
 void R_RestoreInterpolations();
 void R_ActivateSectorInterpolations();
-void R_ActivateThinkerInterpolations(thinker_t *th);
-void R_StopInterpolationIfNeeded(thinker_t *th);
+void R_ActivateThinkerInterpolations(thinker_t* th);
+void R_StopInterpolationIfNeeded(thinker_t* th);
 
 #endif

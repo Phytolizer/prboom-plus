@@ -34,37 +34,38 @@
 #ifndef __G_OVERFLOW__
 #define __G_OVERFLOW__
 
-#include "doomtype.h"
 #include "doomdata.h"
+#include "doomtype.h"
 #include "p_maputl.h"
 
-typedef struct overrun_param_s
-{
-  int warn;
-  int emulate;
-  int footer;
-  int footer_emulate;
-  int promted;
-  int shit_happens;
+typedef struct overrun_param_s {
+	int warn;
+	int emulate;
+	int footer;
+	int footer_emulate;
+	int promted;
+	int shit_happens;
 } overrun_param_t;
 
-typedef enum overrun_list_s
-{
-  OVERFLOW_SPECHIT,
-  OVERFLOW_REJECT,
-  OVERFLOW_INTERCEPT,
-  OVERFLOW_PLYERINGAME,
-  OVERFLOW_DONUT,
-  OVERFLOW_MISSEDBACKSIDE,
+typedef enum overrun_list_s {
+	OVERFLOW_SPECHIT,
+	OVERFLOW_REJECT,
+	OVERFLOW_INTERCEPT,
+	OVERFLOW_PLYERINGAME,
+	OVERFLOW_DONUT,
+	OVERFLOW_MISSEDBACKSIDE,
 
-  OVERFLOW_MAX //last
+	OVERFLOW_MAX // last
 } overrun_list_t;
 
 extern int overflows_enabled;
 extern overrun_param_t overflows[];
-extern const char *overflow_cfgname[OVERFLOW_MAX];
+extern const char* overflow_cfgname[OVERFLOW_MAX];
 
-#define EMULATE(overflow) (overflows_enabled && (overflows[overflow].footer ? overflows[overflow].footer_emulate : overflows[overflow].emulate))
+#define EMULATE(overflow) \
+	(overflows_enabled && \
+			(overflows[overflow].footer ? overflows[overflow].footer_emulate \
+										: overflows[overflow].emulate))
 #define PROCESS(overflow) (overflows_enabled && (overflows[overflow].warn || EMULATE(overflow)))
 
 // e6y
@@ -79,15 +80,14 @@ extern const char *overflow_cfgname[OVERFLOW_MAX];
 
 #define MAXINTERCEPTS_ORIGINAL 128
 
-typedef struct
-{
-    int len;
-    void *addr;
-    dboolean int16_array;
+typedef struct {
+	int len;
+	void* addr;
+	dboolean int16_array;
 } intercepts_overrun_t;
 
 extern intercepts_overrun_t intercepts_overrun[];
-void InterceptsOverrun(int num_intercepts, intercept_t *intercept);
+void InterceptsOverrun(int num_intercepts, intercept_t* intercept);
 
 //
 // playeringame overrun emulation
@@ -102,38 +102,37 @@ int PlayeringameOverrun(const mapthing_t* mthing);
 // Spechit overrun magic value.
 #define DEFAULT_SPECHIT_MAGIC 0x01C09C98
 
-typedef struct spechit_overrun_param_s
-{
-  line_t *line;
+typedef struct spechit_overrun_param_s {
+	line_t* line;
 
-  line_t ***spechit;
-  int *numspechit;
+	line_t*** spechit;
+	int* numspechit;
 
-  fixed_t *tmbbox;
-  fixed_t *tmfloorz;
-  fixed_t *tmceilingz;
+	fixed_t* tmbbox;
+	fixed_t* tmfloorz;
+	fixed_t* tmceilingz;
 
-  dboolean *crushchange;
-  dboolean *nofit;
+	dboolean* crushchange;
+	dboolean* nofit;
 } spechit_overrun_param_t;
 
 extern unsigned int spechit_baseaddr;
 
-void SpechitOverrun(spechit_overrun_param_t *params);
+void SpechitOverrun(spechit_overrun_param_t* params);
 
 //
 // reject overrun emulation
 //
 
-void RejectOverrun(int rejectlump, const byte **rejectmatrix, int totallines);
+void RejectOverrun(int rejectlump, const byte** rejectmatrix, int totallines);
 
 //
 // donut overrun emulation (linedef action 9)
 //
 
-int DonutOverrun(fixed_t *pfloorheight, short *pfloorpic);
+int DonutOverrun(fixed_t* pfloorheight, short* pfloorpic);
 
-int MissedBackSideOverrun(line_t *line);
+int MissedBackSideOverrun(line_t* line);
 sector_t* GetSectorAtNullAddress(void);
 
 #endif // __G_OVERFLOW__

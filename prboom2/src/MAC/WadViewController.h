@@ -2,10 +2,9 @@
 
 #import <Cocoa/Cocoa.h>
 
-@interface WadViewController : NSObject
-{
+@interface WadViewController : NSObject {
 	// Wad options
-	NSMutableArray *wads;
+	NSMutableArray* wads;
 
 	IBOutlet id view;
 	IBOutlet id removeButton;
@@ -16,21 +15,21 @@
 
 // UI
 - (IBAction)add:(id)sender;
-- (void)addEnded:(NSOpenPanel *)panel returnCode:(int)code contextInfo:(void *)info;
+- (void)addEnded:(NSOpenPanel*)panel returnCode:(int)code contextInfo:(void*)info;
 - (IBAction)remove:(id)sender;
 
 // Preferences saving
-- (NSArray *)wads;
-- (void)setWads:(NSArray *)newWads;
+- (NSArray*)wads;
+- (void)setWads:(NSArray*)newWads;
 
 // Table view and data source
-- (void)tableViewSelectionDidChange:(NSNotification *)notification;
-- (int)numberOfRowsInTableView:(NSTableView *)tableView;
-- (id)tableView:(NSTableView *)tableView
-                objectValueForTableColumn:(NSTableColumn *)column
-                row:(int)row;
-- (void)tableView:(NSTableView *)tableView
-                  setObjectValue:(id)object
-                  forTableColumn:(NSTableColumn *)column
-                  row:(int)row;
+- (void)tableViewSelectionDidChange:(NSNotification*)notification;
+- (int)numberOfRowsInTableView:(NSTableView*)tableView;
+- (id)tableView:(NSTableView*)tableView
+		objectValueForTableColumn:(NSTableColumn*)column
+							  row:(int)row;
+- (void)tableView:(NSTableView*)tableView
+		setObjectValue:(id)object
+		forTableColumn:(NSTableColumn*)column
+				   row:(int)row;
 @end

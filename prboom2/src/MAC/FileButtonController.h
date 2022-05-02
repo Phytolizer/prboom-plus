@@ -2,23 +2,22 @@
 
 #import <Cocoa/Cocoa.h>
 
-@interface FileButtonController : NSObject
-{
-	IBOutlet NSButton *button;
+@interface FileButtonController : NSObject {
+	IBOutlet NSButton* button;
 	IBOutlet id field;
 
-	NSArray *types;
+	NSArray* types;
 	bool allowMultiple;
 }
 
 - (id)init;
 - (void)dealloc;
 
-- (void)setTypes:(NSArray *)typeArray;
+- (void)setTypes:(NSArray*)typeArray;
 - (void)setAllowMultiple:(bool)allow;
 
 - (IBAction)buttonClicked:(id)sender;
-- (void)panelEnded:(NSOpenPanel *)panel returnCode:(int)code contextInfo:(void *)info;
+- (void)panelEnded:(NSOpenPanel*)panel returnCode:(int)code contextInfo:(void*)info;
 
 - (id)field;
 - (void)setEnabled:(BOOL)enabled;
