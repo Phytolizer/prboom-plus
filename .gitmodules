@@ -1,0 +1,3 @@
+[submodule "prboom2/deps/libucl"]
+	path = prboom2/deps/libucl
+	url = https://github.com/vstakhov/libucl.git

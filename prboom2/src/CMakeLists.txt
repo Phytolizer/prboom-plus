@@ -323,6 +323,7 @@ function(AddGameExecutable TARGET SOURCES)
     )
     target_link_libraries(${TARGET} PRIVATE
         ${SDL2_LIBRARIES}
+        ucl::ucl
     )
     if(WIN32)
         target_link_libraries(${TARGET} PRIVATE

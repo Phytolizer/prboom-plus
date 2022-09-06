@@ -90,6 +90,8 @@
 #include "WIN/win_fopen.h"
 #endif
 
+#include <ucl.h>
+
 /* cph - disk icon not implemented */
 static inline void I_BeginRead(void) {}
 static inline void I_EndRead(void) {}
@@ -1435,6 +1437,8 @@ void M_SaveDefaults (void)
   int   i;
   FILE* f;
   int maxlen = 0;
+  ucl_object_t* config;
+  unsigned char* text;
 
   f = fopen (defaultfile, "w");
   if (!f)
@@ -1456,18 +1460,20 @@ void M_SaveDefaults (void)
 
   fprintf(f,"# Doom config file\n");
   fprintf(f,"# Format:\n");
-  fprintf(f,"# variable   value\n");
+  fprintf(f,"# variable = value;\n");
+  
+  config = ucl_object_typed_new(UCL_OBJECT);
 
   for (i = 0 ; i < numdefaults ; i++) {
     if (defaults[i].type == def_none) {
       // CPhipps - pure headers
-      fprintf(f, "\n# %s\n", defaults[i].name);
+      // fprintf(f, "\n# %s\n", defaults[i].name);
     } else
       // e6y: arrays
       if (defaults[i].type == def_arr)
       {
         int k;
-        fprintf (f,"%-*s \"%s\"\n",maxlen,defaults[i].name,*(defaults[i].location.ppsz));
+        ucl_object_insert_key(config, ucl_object_fromstring(*defaults[i].location.ppsz), defaults[i].name, 0, false);
         for (k = 0; k < *(defaults[i].location.array_size); k++)
         {
           char ***arr = defaults[i].location.array_data;
@@ -1475,7 +1481,7 @@ void M_SaveDefaults (void)
           {
             char def[80];
             sprintf(def, "%s%d", *(defaults[i].location.ppsz), k);
-            fprintf (f,"%-*s \"%s\"\n",maxlen,def, (*arr)[k]);
+            ucl_object_insert_key(config, ucl_object_fromstring(*defaults[i].location.ppsz), def, 0, false);
           }
         }
         i += defaults[i].defaultvalue.array_size;
@@ -1488,17 +1494,22 @@ void M_SaveDefaults (void)
       // CPhipps - remove keycode hack
       // killough 3/6/98: use spaces instead of tabs for uniform justification
       if (defaults[i].type == def_hex)
-  fprintf (f,"%-*s 0x%x\n",maxlen,defaults[i].name,*(defaults[i].location.pi));
+        // TODO how to make this show as hex?
+        ucl_object_insert_key(config, ucl_object_fromint(*defaults[i].location.pi), defaults[i].name, 0, false);
       else
-  fprintf (f,"%-*s %i\n",maxlen,defaults[i].name,*(defaults[i].location.pi));
+        ucl_object_insert_key(config, ucl_object_fromint(*defaults[i].location.pi), defaults[i].name, 0, false);
       }
     else
       {
-      fprintf (f,"%-*s \"%s\"\n",maxlen,defaults[i].name,*(defaults[i].location.ppsz));
+        ucl_object_insert_key(config, ucl_object_fromstring(*defaults[i].location.ppsz), defaults[i].name, 0, false);
       }
     }
 
-  fclose (f);
+  text = ucl_object_emit(config, UCL_EMIT_CONFIG);
+  ucl_object_unref(config);
+  fwrite(text, 1, strlen(text), f);
+  (free)(text);
+  fclose(f);
 }
 
 /*
@@ -1533,14 +1544,14 @@ void M_LoadDefaults (void)
   int   i;
   int   len;
   FILE* f;
-  char  def[80];
-  char* strparm = malloc(CFG_BUFFERMAX);
-  char* cfgline = malloc(CFG_BUFFERMAX);
+  const char* def;
+  const char* strparm;
   char* newstring = NULL;   // killough
   int   parm;
   dboolean isstring;
   // e6y: arrays
   default_t *item = NULL;
+  struct ucl_parser* parser;
 
   // set everything to base values
 
@@ -1607,118 +1618,112 @@ void M_LoadDefaults (void)
 
   // read the file in, overriding any set defaults
 
-  f = fopen (defaultfile, "r");
-  if (f)
-    {
-    while (!feof(f))
-      {
-      isstring = false;
-      parm = 0;
-      fgets(cfgline, CFG_BUFFERMAX, f);
-      if (sscanf (cfgline, "%79s %[^\n]\n", def, strparm) == 2)
-        {
-
-        //jff 3/3/98 skip lines not starting with an alphanum
-
-        if (!isalnum(def[0]))
-          continue;
-
-        if (strparm[0] == '"') {
-          // get a string default
-
-          isstring = true;
-          len = strlen(strparm);
-          newstring = malloc(len);
-          strparm[len-1] = 0; // clears trailing double-quote mark
-          strcpy(newstring, strparm+1); // clears leading double-quote mark
-  } else if ((strparm[0] == '0') && (strparm[1] == 'x')) {
-    // CPhipps - allow ints to be specified in hex
-    sscanf(strparm+2, "%x", &parm);
-  } else {
-          sscanf(strparm, "%i", &parm);
-    // Keycode hack removed
+  parser = ucl_parser_new(0);
+  if (!ucl_parser_add_file(parser, defaultfile))
+  {
+    lprintf(LO_WARN, "M_LoadDefaults: Error parsing %s: %s\n", defaultfile, ucl_parser_get_error(parser));
   }
+  else
+  {
+    ucl_object_t* root = ucl_parser_get_object(parser);
+    ucl_object_iter_t iter;
+    const ucl_object_t* cur;
 
-        // e6y: arrays
-        if (item)
+    iter = ucl_object_iterate_new(root);
+    while ((cur = ucl_object_iterate_safe(iter, true)) != NULL)
+    {
+      const char* strparm = NULL;
+      int64_t parm = 0;
+      size_t strparm_len = 0;
+      def = ucl_object_key(cur);
+      ucl_obj_toint_safe(cur, &parm);
+      if ((isstring = ucl_obj_tostring_safe(cur, &strparm)))
+      {
+        strparm_len = strlen(strparm);
+        newstring = malloc(strparm_len + 1);
+        memcpy(newstring, strparm, strparm_len);
+        newstring[strparm_len] = 0;
+      }
+
+      // e6y: arrays
+      if (item)
+      {
+        int *pcount = item->location.array_size;
+        int *index = &item->location.array_index;
+        char ***arr = (char***)(item->location.array_data);
+        if (!strncmp(def, *(item->location.ppsz), strlen(*(item->location.ppsz))) 
+            && ((item->maxvalue == UL) || *(item->location.array_size) < item->maxvalue) )
         {
-          int *pcount = item->location.array_size;
-          int *index = &item->location.array_index;
-          char ***arr = (char***)(item->location.array_data);
-          if (!strncmp(def, *(item->location.ppsz), strlen(*(item->location.ppsz))) 
-              && ((item->maxvalue == UL) || *(item->location.array_size) < item->maxvalue) )
+          if ((*index) + 1 > *pcount)
           {
-            if ((*index) + 1 > *pcount)
-            {
-              *arr = realloc(*arr, sizeof(char*) * ((*index) + 1));
-              (*pcount)++;
-            }
-            else
-            {
-              if ((*arr)[(*index)])
-              {
-                free((*arr)[(*index)]);
-                (*arr)[(*index)] = NULL;
-              }
-            }
-            (*arr)[(*index)] = newstring;
-            (*index)++;
-            continue;
+            *arr = realloc(*arr, sizeof(char*) * ((*index) + 1));
+            (*pcount)++;
           }
           else
           {
-            item = NULL;
-          }
-        }
-
-        for (i = 0 ; i < numdefaults ; i++)
-          if ((defaults[i].type != def_none) && !strcmp(def, defaults[i].name))
+            if ((*arr)[(*index)])
             {
-              // e6y: arrays
-              if (defaults[i].type == def_arr)
-              {
-                union { const char **c; char **s; } u; // type punning via unions
-
-                u.c = defaults[i].location.ppsz;
-                free(*(u.s));
-                *(u.s) = newstring;
-
-                item = &defaults[i];
-                continue;
-              }
-
-      // CPhipps - safety check
-            if (isstring != IS_STRING(defaults[i])) {
-        lprintf(LO_WARN, "M_LoadDefaults: Type mismatch reading %s\n", defaults[i].name);
-        continue;
-      }
-            if (!isstring)
-              {
-
-              //jff 3/4/98 range check numeric parameters
-
-              if ((defaults[i].minvalue==UL || defaults[i].minvalue<=parm) &&
-                  (defaults[i].maxvalue==UL || defaults[i].maxvalue>=parm))
-                *(defaults[i].location.pi) = parm;
-              }
-            else
-              {
-                union { const char **c; char **s; } u; // type punning via unions
-
-                u.c = defaults[i].location.ppsz;
-                free(*(u.s));
-                *(u.s) = newstring;
-              }
-            break;
+              free((*arr)[(*index)]);
+              (*arr)[(*index)] = NULL;
             }
+          }
+          (*arr)[(*index)] = newstring;
+          (*index)++;
+          continue;
+        }
+        else
+        {
+          item = NULL;
         }
       }
 
-    fclose (f);
-    }
+      for (i = 0 ; i < numdefaults ; i++)
+        if ((defaults[i].type != def_none) && !strcmp(def, defaults[i].name))
+        {
+          // e6y: arrays
+          if (defaults[i].type == def_arr)
+          {
+            union { const char **c; char **s; } u; // type punning via unions
 
-  free(strparm);
-  free(cfgline);
+            u.c = defaults[i].location.ppsz;
+            free(*(u.s));
+            *(u.s) = newstring;
+
+            item = &defaults[i];
+            continue;
+          }
+
+          // CPhipps - safety check
+          if (isstring != IS_STRING(defaults[i])) {
+            lprintf(LO_WARN, "M_LoadDefaults: Type mismatch reading %s\n", defaults[i].name);
+            continue;
+          }
+          if (!isstring)
+          {
+
+          //jff 3/4/98 range check numeric parameters
+
+          if ((defaults[i].minvalue==UL || defaults[i].minvalue<=parm) &&
+              (defaults[i].maxvalue==UL || defaults[i].maxvalue>=parm))
+            *(defaults[i].location.pi) = parm;
+          }
+          else
+          {
+            union { const char **c; char **s; } u; // type punning via unions
+
+            u.c = defaults[i].location.ppsz;
+            free(*(u.s));
+            *(u.s) = newstring;
+          }
+          break;
+        }
+    }
+    ucl_object_iterate_free(iter);
+
+    ucl_object_unref(root);
+  }
+
+  ucl_parser_free(parser);
 
   //jff 3/4/98 redundant range checks for hud deleted here
   /* proff 2001/7/1 - added prboom.wad as last entry so it's always loaded and

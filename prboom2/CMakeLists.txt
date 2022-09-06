@@ -17,6 +17,8 @@ endif()
 
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
+add_subdirectory(deps/libucl)
+
 include(TargetArch)
 
 include(TestBigEndian)
